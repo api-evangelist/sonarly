@@ -1,0 +1,291 @@
+openapi: 3.1.0
+info:
+  title: Sonarly Bugs Incidents API
+  version: '2026-04-30'
+  description: 'Sonarly turns noisy production alerts into clear, deduplicated bug reports and ships fix pull requests. It connects to a team''s code (GitHub/GitLab) and their error/observability stack (Sentry, Datadog, Grafana, and more), then triages, root-causes and fixes alerts automatically. This API covers two surfaces: the read-only public REST API (v1) for pulling bugs, incidents and analysis runs into your own dashboards, and the device-code style setup-session API used to onboard a tenant.'
+  contact:
+    name: Sonarly
+    url: https://sonarly.com/docs/public-api
+  x-api-version-header-example: '2026-04-30'
+servers:
+- url: https://sonarly.com
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: Incidents
+  description: Read incidents and their analysis runs.
+paths:
+  /api/v1/public/incidents:
+    get:
+      operationId: listIncidents
+      tags:
+      - Incidents
+      summary: List incidents
+      description: Same shape and filters as GET /bugs.
+      parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: severity
+        in: query
+        schema:
+          type: string
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - open
+          - resolved
+      - name: created[gte]
+        in: query
+        schema:
+          type: integer
+      - name: created[lte]
+        in: query
+        schema:
+          type: integer
+      - name: starting_after
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: A page of incidents.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /api/v1/public/incidents/{id}:
+    get:
+      operationId: getIncident
+      tags:
+      - Incidents
+      summary: Retrieve an incident
+      parameters:
+      - $ref: '#/components/parameters/IncidentId'
+      responses:
+        '200':
+          description: The incident.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/public/incidents/{id}/runs:
+    get:
+      operationId: listIncidentRuns
+      tags:
+      - Incidents
+      summary: List an incident's analysis runs
+      parameters:
+      - $ref: '#/components/parameters/IncidentId'
+      responses:
+        '200':
+          description: The incident's agent-analysis runs.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentRunList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  schemas:
+    ListEnvelope:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next:
+          type: string
+          description: Next cursor.
+        url:
+          type: string
+    IncidentList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Incident'
+    AgentRun:
+      type: object
+      description: A single agent analysis/fix run for a bug or incident.
+      properties:
+        id:
+          type: string
+        mode:
+          type: string
+        status:
+          type: string
+        trigger_source:
+          type: string
+        bug_id:
+          type: string
+        repository:
+          type: string
+        branch_name:
+          type: string
+        pr_url:
+          type: string
+        pr_merged:
+          type: boolean
+        analysis:
+          type: object
+          properties:
+            title:
+              type: string
+            severity:
+              type: string
+            summary:
+              type: string
+            user_impact:
+              type: string
+            root_cause:
+              type: string
+            suggested_fix:
+              type: string
+            fixable_in_code:
+              type: boolean
+        created:
+          type: integer
+          description: unix seconds
+        started_at:
+          type: integer
+          description: unix seconds
+        completed_at:
+          type: integer
+          description: unix seconds
+    Incident:
+      description: An incident; same shape as Bug.
+      allOf:
+      - $ref: '#/components/schemas/Bug'
+    AgentRunList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/AgentRun'
+    Bug:
+      type: object
+      description: A triaged, deduplicated production bug.
+      properties:
+        id:
+          type: string
+        object:
+          type: string
+          example: bug
+        source:
+          type: string
+        status:
+          type: string
+          enum:
+          - open
+          - resolved
+        severity:
+          type: string
+          enum:
+          - critical
+          - high
+          - medium
+          - low
+          - resolved
+        title:
+          type: string
+        description:
+          type: string
+        summary:
+          type: string
+        user_impact:
+          type: string
+        root_cause:
+          type: string
+        suggested_fix:
+          type: string
+        blame_commit_sha:
+          type: string
+        fixable_in_code:
+          type: boolean
+        confidence:
+          type: number
+        pr_url:
+          type: string
+        agent_url:
+          type: string
+        branch_name:
+          type: string
+        repository:
+          type: string
+        error_type:
+          type: string
+        error_message:
+          type: string
+        occurrence_count:
+          type: integer
+        total_user_count:
+          type: integer
+        first_seen:
+          type: integer
+          description: unix seconds
+        last_seen:
+          type: integer
+          description: unix seconds
+        created:
+          type: integer
+          description: unix seconds
+        analyzed_at:
+          type: integer
+          description: unix seconds
+        sentry_issue_id:
+          type: string
+        sentry_url:
+          type: string
+        github_issue_url:
+          type: string
+        parent_bug_id:
+          type: string
+          description: Set when this bug was deduped into another.
+        sonarly_url:
+          type: string
+  responses:
+    Unauthorized:
+      description: Missing or invalid bearer token.
+    RateLimited:
+      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
+    NotFound:
+      description: Resource not found.
+  parameters:
+    IncidentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token. For the public API this is a read-only key (sk_live_); for the setup API it is the setup-scoped token from GET /api/setup/{setup_id}/status.
+x-apievangelist:
+  generated: '2026-07-21'
+  method: generated
+  source: Hand-authored from Sonarly's published agent onboarding guide at https://sonarly.com/llms.txt (fetched 2026-07-21) and the public API reference it points to (https://sonarly.com/docs/public-api). Every path, parameter, response field and security scheme is taken verbatim from that published documentation — nothing is invented. Sonarly publishes no machine-readable OpenAPI of its own (sonarly.com/openapi.json returns the SPA shell), so this spec is the API Evangelist generation of the documented surface.

@@ -1,0 +1,355 @@
+openapi: 3.1.0
+info:
+  title: Sonarly Bugs Setup API
+  version: '2026-04-30'
+  description: 'Sonarly turns noisy production alerts into clear, deduplicated bug reports and ships fix pull requests. It connects to a team''s code (GitHub/GitLab) and their error/observability stack (Sentry, Datadog, Grafana, and more), then triages, root-causes and fixes alerts automatically. This API covers two surfaces: the read-only public REST API (v1) for pulling bugs, incidents and analysis runs into your own dashboards, and the device-code style setup-session API used to onboard a tenant.'
+  contact:
+    name: Sonarly
+    url: https://sonarly.com/docs/public-api
+  x-api-version-header-example: '2026-04-30'
+servers:
+- url: https://sonarly.com
+  description: Production
+security:
+- bearerAuth: []
+tags:
+- name: Setup
+  description: Device-code style setup-session API to onboard a tenant.
+paths:
+  /api/setup/start:
+    post:
+      operationId: startSetup
+      tags:
+      - Setup
+      summary: Start a setup session
+      description: Device-code style. Issues a session plus a user code; the human authorizes by signing in at verification_url (which creates their tenant).
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source:
+                  type: string
+                  description: The calling agent's name.
+                stack:
+                  type: object
+                  description: Detected stack profile JSON.
+      responses:
+        '200':
+          description: Session created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  setup_id:
+                    type: string
+                  verification_url:
+                    type: string
+                    format: uri
+                  user_code:
+                    type: string
+                  interval:
+                    type: integer
+                  expires_in:
+                    type: integer
+  /api/setup/{setup_id}/status:
+    get:
+      operationId: getSetupStatus
+      tags:
+      - Setup
+      summary: Poll setup-session status
+      security: []
+      parameters:
+      - name: setup_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Current session state.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state:
+                    type: string
+                    enum:
+                    - pending
+                    - authorized
+                    - expired
+                  token:
+                    type: string
+                    description: Setup-scoped bearer token
+                    ~30 min.: null
+                  tenant_id:
+                    type: integer
+                  connected:
+                    type: object
+                    additionalProperties:
+                      type: boolean
+  /api/setup/connect-url:
+    get:
+      operationId: getConnectUrl
+      tags:
+      - Setup
+      summary: Mint an OAuth/install link for a provider
+      description: Currently supports provider=sentry and provider=github; other providers return 400 while wired incrementally.
+      parameters:
+      - name: provider
+        in: query
+        required: true
+        schema:
+          type: string
+          example: sentry
+      responses:
+        '200':
+          description: Provider connect URL.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    type: string
+                  url:
+                    type: string
+                    format: uri
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/setup/repos:
+    get:
+      operationId: listRepos
+      tags:
+      - Setup
+      summary: List repositories available to the connected code host
+      responses:
+        '200':
+          description: Repositories.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  repos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        full_name:
+                          type: string
+                        default_branch:
+                          type: string
+  /api/setup/repos/selected:
+    post:
+      operationId: selectRepos
+      tags:
+      - Setup
+      summary: Select repositories for the tenant
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                repos:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Selected repositories.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  selected:
+                    type: array
+                    items:
+                      type: string
+  /api/setup/{id}/integrations:
+    post:
+      operationId: createIntegration
+      tags:
+      - Setup
+      summary: Connect an observability / logs / APM backend
+      description: Validates the credentials live and returns 4xx with a clear message on bad input. On success auto-provisions that tool's webhook/notification rule. backend_type is one of datadog, grafana, signoz, newrelic, gcp, cloudwatch, betterstack, mezmo, railway, modal, supabase, langsmith, vercel, posthog, database, kubernetes.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backend_type:
+                  type: string
+                config:
+                  type: object
+      responses:
+        '200':
+          description: Integration connected.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /api/setup/project:
+    post:
+      operationId: configureProject
+      tags:
+      - Setup
+      summary: Set the project's agent instructions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agent_instructions:
+                  type: string
+      responses:
+        '200':
+          description: Saved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  saved:
+                    type: boolean
+                  chars:
+                    type: integer
+  /api/setup/api-key:
+    post:
+      operationId: createApiKey
+      tags:
+      - Setup
+      summary: Mint a read-only public API key
+      description: Returns the key exactly once. Read-only, tenant-scoped. Use it as a Bearer token against the public API base.
+      responses:
+        '200':
+          description: The minted key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  key:
+                    type: string
+                    description: Read-only key
+                    prefix sk_live_.: null
+                  api_base:
+                    type: string
+                    format: uri
+                  is_read_only:
+                    type: boolean
+                  docs:
+                    type: string
+                    format: uri
+  /api/setup/webhook-endpoint:
+    post:
+      operationId: createWebhookEndpoint
+      tags:
+      - Setup
+      summary: Register an outbound webhook receiver
+      description: The URL is SSRF-checked. Returns a signing secret (prefix whsec_) shown once.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Endpoint registered.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  secret:
+                    type: string
+                  event_types:
+                    type: array
+                    items:
+                      type: string
+  /api/setup/{id}/checkout-url:
+    get:
+      operationId: getCheckoutUrl
+      tags:
+      - Setup
+      summary: Get a Stripe checkout URL for a plan
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: plan
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - teams
+          - startup
+          - enterprise
+      responses:
+        '200':
+          description: Checkout URL.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+  /api/setup/complete:
+    post:
+      operationId: completeSetup
+      tags:
+      - Setup
+      summary: Finish onboarding
+      responses:
+        '200':
+          description: Completed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  completed:
+                    type: boolean
+                  dashboard_url:
+                    type: string
+                    format: uri
+components:
+  responses:
+    BadRequest:
+      description: Invalid input; body carries a clear message.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token. For the public API this is a read-only key (sk_live_); for the setup API it is the setup-scoped token from GET /api/setup/{setup_id}/status.
+x-apievangelist:
+  generated: '2026-07-21'
+  method: generated
+  source: Hand-authored from Sonarly's published agent onboarding guide at https://sonarly.com/llms.txt (fetched 2026-07-21) and the public API reference it points to (https://sonarly.com/docs/public-api). Every path, parameter, response field and security scheme is taken verbatim from that published documentation — nothing is invented. Sonarly publishes no machine-readable OpenAPI of its own (sonarly.com/openapi.json returns the SPA shell), so this spec is the API Evangelist generation of the documented surface.
