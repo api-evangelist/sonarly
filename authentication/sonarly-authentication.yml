@@ -1,0 +1,54 @@
+generated: '2026-07-21'
+method: searched
+source: openapi/sonarly-openapi.yml
+docs: https://sonarly.com/docs/public-api
+detail_source: https://sonarly.com/llms.txt
+summary:
+  types:
+  - http
+  api_key_in: [header]
+  human_oauth: true
+  notes: >-
+    Two token surfaces, both carried as Authorization: Bearer. Human sign-in and
+    third-party connections use OAuth browser flows; agent/API access uses
+    bearer tokens.
+schemes:
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  description: >-
+    Bearer token in the Authorization header. For the read-only public API this
+    is a tenant-scoped read-only key with prefix sk_live_ (minted once via POST
+    /api/setup/api-key, returned exactly once). For the setup-session API it is
+    a short-lived (~30 min) setup-scoped token from GET
+    /api/setup/{setup_id}/status, scoped to that one new tenant's setup
+    endpoints.
+  sources:
+  - openapi/sonarly-openapi.yml
+token_types:
+- prefix: sks_setup_
+  name: Setup-scoped token
+  lifetime: ~30 minutes
+  scope: single tenant's setup endpoints only
+  issued_by: GET /api/setup/{setup_id}/status once state=authorized
+- prefix: sk_live_
+  name: Public API key
+  lifetime: long-lived
+  scope: read-only, tenant-scoped
+  issued_by: POST /api/setup/api-key (returned exactly once)
+- prefix: whsec_
+  name: Webhook signing secret
+  usage: HMAC-SHA256 signature verification of inbound webhook envelopes
+  issued_by: POST /api/setup/webhook-endpoint (returned exactly once)
+oauth_flows:
+  description: >-
+    Human-consent OAuth/browser flows handed off during onboarding; not part of
+    the machine token surface.
+  providers:
+  - {provider: google, purpose: user sign-in / tenant creation}
+  - {provider: github, purpose: user sign-in / tenant creation}
+  - {provider: github-app, purpose: code host connection (Sonarly GitHub App install)}
+  - {provider: sentry, purpose: error tracker connection (OAuth)}
+  - {provider: slack, purpose: notifications (OAuth)}
+  - {provider: discord, purpose: notifications (bot invite)}
+  - {provider: linear, purpose: issue tracker (OAuth)}

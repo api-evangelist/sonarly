@@ -1,0 +1,16 @@
+generated: '2026-07-21'
+method: generated
+source: openapi/sonarly-openapi.yml + https://sonarly.com/llms.txt
+skills:
+- file: sonarly-onboard-tenant.md
+  name: Onboard a Sonarly tenant from a coding agent
+  api: openapi/sonarly-openapi.yml
+  operations: [startSetup, getSetupStatus, getConnectUrl, listRepos, selectRepos, createIntegration, configureProject, completeSetup]
+- file: sonarly-pull-bugs.md
+  name: Pull Sonarly bugs and incidents into a dashboard
+  api: openapi/sonarly-openapi.yml
+  operations: [createApiKey, listBugs, getBug, listBugRuns, listIncidents]
+- file: sonarly-consume-webhooks.md
+  name: Register and verify Sonarly webhooks
+  api: openapi/sonarly-openapi.yml
+  operations: [createWebhookEndpoint]

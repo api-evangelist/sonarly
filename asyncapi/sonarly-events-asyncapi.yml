@@ -1,0 +1,99 @@
+asyncapi: 3.0.0
+x-apievangelist:
+  generated: '2026-07-21'
+  method: searched
+  source: https://sonarly.com/llms.txt
+  note: >-
+    Authored from Sonarly's published webhook documentation (event list,
+    envelope, headers, and HMAC signature scheme) in the agent onboarding guide.
+    Sonarly ships signed outbound webhooks but no first-party AsyncAPI; this is
+    the API Evangelist capture of the documented event surface.
+info:
+  title: Sonarly Webhooks
+  version: '2026-04-30'
+  description: >-
+    Sonarly delivers signed outbound webhooks on bug and incident lifecycle
+    events. Register a receiver via POST /api/setup/webhook-endpoint (the URL is
+    SSRF-checked; a whsec_ signing secret is returned once). Each event is a
+    signed JSON envelope; verify the Sonarly-Signature HMAC-SHA256, reject if
+    the timestamp is older than 300s, and dedupe on Sonarly-Event-Id.
+defaultContentType: application/json
+servers:
+  sonarly:
+    host: sonarly.com
+    protocol: https
+    description: Sonarly delivers events to the subscriber's registered receiver URL.
+channels:
+  events:
+    address: /webhooks/sonarly
+    description: The subscriber's registered receiver endpoint; Sonarly POSTs event envelopes here.
+    messages:
+      bugCreated: { $ref: '#/components/messages/BugEvent' }
+      bugAnalyzed: { $ref: '#/components/messages/BugEvent' }
+      bugDeduped: { $ref: '#/components/messages/BugEvent' }
+      bugReappeared: { $ref: '#/components/messages/BugEvent' }
+      bugResolved: { $ref: '#/components/messages/BugEvent' }
+      bugPrCreated: { $ref: '#/components/messages/BugEvent' }
+      bugPrMerged: { $ref: '#/components/messages/BugEvent' }
+      incidentCreated: { $ref: '#/components/messages/IncidentEvent' }
+      incidentAnalyzed: { $ref: '#/components/messages/IncidentEvent' }
+      incidentResolved: { $ref: '#/components/messages/IncidentEvent' }
+operations:
+  receiveEvent:
+    action: receive
+    channel: { $ref: '#/channels/events' }
+    summary: Receive a Sonarly event envelope.
+components:
+  messages:
+    BugEvent:
+      name: bugEvent
+      title: Bug lifecycle event
+      contentType: application/json
+      headers: { $ref: '#/components/schemas/EventHeaders' }
+      payload: { $ref: '#/components/schemas/Envelope' }
+    IncidentEvent:
+      name: incidentEvent
+      title: Incident lifecycle event
+      contentType: application/json
+      headers: { $ref: '#/components/schemas/EventHeaders' }
+      payload: { $ref: '#/components/schemas/Envelope' }
+  schemas:
+    EventHeaders:
+      type: object
+      properties:
+        Sonarly-Signature:
+          type: string
+          description: 't=<unix>,v1=<hmac_sha256_hex over "{t}.{rawBody}"> using the whsec_ secret.'
+        Sonarly-Event-Id: { type: string, description: Stable event id (= envelope id); dedupe on this. }
+        Sonarly-Event-Type: { type: string }
+        Sonarly-Delivery-Id: { type: string }
+    Envelope:
+      type: object
+      properties:
+        id: { type: string, example: evt_123 }
+        type:
+          type: string
+          enum:
+          - bug.created
+          - bug.analyzed
+          - bug.deduped
+          - bug.reappeared
+          - bug.resolved
+          - bug.pr_created
+          - bug.pr_merged
+          - incident.created
+          - incident.analyzed
+          - incident.resolved
+        api_version: { type: string, example: '2026-04-30' }
+        created: { type: integer, description: unix seconds }
+        tenant_id: { type: integer }
+        data:
+          type: object
+          properties:
+            object: { type: object, description: The full Bug or Incident object. }
+            previous_attributes: { type: [object, 'null'] }
+x-delivery:
+  retry: up to 8 attempts
+  ack_window_seconds: 10
+  disable_after_days: 3
+  replay_tolerance_seconds: 300

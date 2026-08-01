@@ -1,0 +1,40 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/sonarly-openapi.yml
+docs: https://sonarly.com/docs/public-api
+format: http-status
+description: >-
+  Error surface for the Sonarly API, derived from the documented endpoint
+  behavior in openapi/sonarly-openapi.yml and the onboarding guide. Sonarly
+  returns standard HTTP status codes with a clear human-readable message on the
+  response body (not RFC 9457 problem+json). Credential-validating setup
+  endpoints (integrations, connect-url) return 4xx with a specific message that
+  agents are told to surface and retry.
+problems:
+- status: 400
+  title: Bad request
+  detail: >-
+    Invalid input, unsupported provider, or unwired capability. connect-url
+    returns 400 for providers other than sentry/github; repos/project endpoints
+    and GitLab return 400 while wired incrementally; integrations returns 4xx
+    with a clear message when submitted credentials fail live validation.
+  source_operations:
+  - openapi/sonarly-openapi.yml#getConnectUrl
+  - openapi/sonarly-openapi.yml#createIntegration
+- status: 401
+  title: Unauthorized
+  detail: Missing or invalid bearer token.
+  source_operations:
+  - openapi/sonarly-openapi.yml#listBugs
+  - openapi/sonarly-openapi.yml#getBug
+- status: 404
+  title: Not found
+  detail: The requested bug or incident does not exist for this tenant.
+  source_operations:
+  - openapi/sonarly-openapi.yml#getBug
+  - openapi/sonarly-openapi.yml#getIncident
+- status: 429
+  title: Rate limited
+  detail: Public API rate limit exceeded (1000/min); see RateLimit-* headers.
+  source_operations:
+  - openapi/sonarly-openapi.yml#listBugs

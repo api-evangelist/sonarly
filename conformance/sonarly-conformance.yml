@@ -1,0 +1,38 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/sonarly-openapi.yml
+docs: https://sonarly.com/llms.txt
+description: >-
+  Cross-cutting standards conformance for the Sonarly API, derived from the
+  documented auth flows, webhook signing scheme, and API conventions. No
+  published compliance program (SOC 2 / ISO 27001 / etc.) was found, so no
+  Compliance pointer is emitted.
+standards:
+- id: oauth2
+  conforms: true
+  evidence: >-
+    Human sign-in and third-party connections (Google, GitHub, Sentry, Slack,
+    Linear) use OAuth authorization flows; the setup-session API is a
+    device-code style authorization flow.
+- id: oauth2-device-authorization-grant
+  conforms: true
+  evidence: >-
+    /api/setup/* is device-code style — start issues a user_code +
+    verification_url, status polls for the authorized token (RFC 8628 pattern).
+- id: bearer-token-rfc6750
+  conforms: true
+  evidence: Authorization Bearer used for all machine API access.
+- id: webhook-hmac-signing
+  conforms: true
+  evidence: >-
+    Outbound webhooks carry Sonarly-Signature (t + v1 HMAC-SHA256 over
+    "{t}.{rawBody}") with 300s replay tolerance and event-id dedupe.
+- id: cursor-pagination
+  conforms: true
+  evidence: List endpoints use starting_after cursors with has_more/next envelope.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: Errors are plain HTTP status + message, not application/problem+json.
+- id: openapi-published
+  conforms: false
+  evidence: No first-party machine-readable OpenAPI; sonarly.com/openapi.json returns the SPA shell.

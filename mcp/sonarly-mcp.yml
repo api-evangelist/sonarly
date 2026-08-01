@@ -1,0 +1,34 @@
+generated: '2026-07-21'
+method: derived
+status: candidate
+source: openapi/sonarly-openapi.yml
+description: >-
+  Candidate MCP tool list derived from Sonarly's read-only public REST API
+  operations. Sonarly publishes no hosted/remote MCP server (its agent-native
+  surface is the llms.txt onboarding guide, not MCP), so this is a candidate the
+  read API could back one-to-one. Not an official Sonarly server.
+server:
+  name: sonarly
+  transport: http
+tools:
+- name: list_bugs
+  description: List triaged, deduplicated bugs (filter by severity, status, created range).
+  source_operation: openapi/sonarly-openapi.yml#listBugs
+- name: get_bug
+  description: Retrieve a single bug with root cause, suggested fix and PR.
+  source_operation: openapi/sonarly-openapi.yml#getBug
+- name: list_bug_runs
+  description: List a bug's agent analysis runs.
+  source_operation: openapi/sonarly-openapi.yml#listBugRuns
+- name: list_bug_duplicates
+  description: List bugs deduplicated into a given bug.
+  source_operation: openapi/sonarly-openapi.yml#listBugDuplicates
+- name: list_incidents
+  description: List incidents.
+  source_operation: openapi/sonarly-openapi.yml#listIncidents
+- name: get_incident
+  description: Retrieve a single incident.
+  source_operation: openapi/sonarly-openapi.yml#getIncident
+- name: list_incident_runs
+  description: List an incident's agent analysis runs.
+  source_operation: openapi/sonarly-openapi.yml#listIncidentRuns

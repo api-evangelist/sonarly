@@ -1,0 +1,74 @@
+generated: '2026-07-21'
+method: searched
+source: https://sonarly.com/llms.txt
+docs: https://sonarly.com/docs/public-api
+description: >-
+  Cross-cutting request/response conventions for the Sonarly public API and
+  webhook surface: authentication style, pagination, versioning, rate-limit
+  signaling, the list envelope, and webhook signature verification. Captured
+  from Sonarly's published agent onboarding guide (llms.txt) and public API
+  reference. Idempotency is intentionally NOT listed as a request convention —
+  Sonarly documents no idempotency-key header for writes (the public API is
+  read-only; webhook replay-safety is handled consumer-side via event-id dedupe,
+  captured under webhooks below).
+
+base_url: https://sonarly.com/api/v1/public
+api_style: REST over HTTPS, JSON responses
+
+authentication:
+  scheme: Authorization Bearer
+  key_types: [read-only public key (sk_live_), setup-scoped token (sks_setup_)]
+  detail: authentication/sonarly-authentication.yml
+  docs: https://sonarly.com/docs/public-api
+
+pagination:
+  style: cursor
+  request_params:
+    limit: 1-100, default 20
+    starting_after: cursor of the form <object>_<id> (e.g. bug_123)
+    created[gte]: unix-seconds lower bound
+    created[lte]: unix-seconds upper bound
+  response_fields:
+    data: array of results
+    has_more: boolean — whether more results exist
+    next: the next cursor to pass as starting_after
+    url: the list endpoint path
+
+filtering:
+  severity: comma-separated (critical, high, medium, low, resolved)
+  status: open | resolved
+
+timestamps:
+  format: unix seconds
+  null_semantics: null means absent
+
+versioning:
+  scheme: dated API version
+  current: '2026-04-30'
+  surfaced_on: webhook envelope api_version field
+  field_stability: v1 public-API fields are stable — never renamed or removed
+  docs: https://sonarly.com/docs/public-api
+
+rate_limit_signaling:
+  limit: 1000 requests/minute (public API key)
+  headers: RateLimit-* response headers
+  detail: rate-limits/sonarly-rate-limits.yml
+
+error_envelope:
+  description: >-
+    Endpoints return 4xx with a clear human-readable message on bad input;
+    unsupported providers/paths return 400. Not RFC 9457 problem+json.
+  detail: errors/sonarly-problem-types.yml
+
+webhooks:
+  signature:
+    header: 'Sonarly-Signature: t=<unix>,v1=<hmac_sha256_hex>'
+    scheme: HMAC-SHA256 over "{t}.{rawBody}" using the whsec_ secret
+    verify:
+    - capture raw body before JSON parsing
+    - constant-time compare of v1 to recomputed HMAC
+    - reject if abs(now - t) > 300s (replay protection)
+    - dedupe on Sonarly-Event-Id (stable across the 8-attempt retry schedule)
+  other_headers: [Sonarly-Event-Id, Sonarly-Event-Type, Sonarly-Delivery-Id]
+  ack: return 2xx within 10s or Sonarly retries; endpoint disabled after 3 days of failures
+  detail: asyncapi/sonarly-events-asyncapi.yml

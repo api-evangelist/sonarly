@@ -1,0 +1,54 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+provider: Sonarly
+providerId: sonarly
+created: '2026-07-21'
+modified: '2026-07-21'
+generated: '2026-07-21'
+method: searched
+tags:
+- Reliability
+- Bug Detection
+- Incident Management
+description: >-
+  Sonarly tiers, as published in the onboarding guide (plans mirror
+  sonarly.com/pricing). Paid tiers use Stripe checkout; the Startup tier
+  includes a 14-day trial. Metered on bugs analyzed per month.
+sources:
+- https://sonarly.com/pricing
+- https://sonarly.com/llms.txt
+plans:
+- id: sonarly-free
+  name: Free
+  type: free
+  price: 0
+  currency: USD
+  interval: month
+  description: 5 bugs per month, no checkout required.
+  entries:
+  - {label: Bugs per month, name: bugs, type: limit, limit: 5, timeFrame: month}
+- id: sonarly-teams
+  name: Teams
+  type: subscription
+  price: 79
+  currency: USD
+  interval: month
+  description: 50 bugs per month.
+  entries:
+  - {label: Bugs per month, name: bugs, type: limit, limit: 50, timeFrame: month}
+- id: sonarly-startup
+  name: Startup
+  type: subscription
+  price: 195
+  currency: USD
+  interval: month
+  trial_days: 14
+  description: 150 bugs per month, 14-day trial.
+  entries:
+  - {label: Bugs per month, name: bugs, type: limit, limit: 150, timeFrame: month}
+- id: sonarly-enterprise
+  name: Enterprise
+  type: custom
+  description: Custom pricing and limits.
+  entries:
+  - {label: Bugs per month, name: bugs, type: limit, limit: -1, timeFrame: month}

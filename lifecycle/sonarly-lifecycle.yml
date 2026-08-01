@@ -1,0 +1,22 @@
+generated: '2026-07-21'
+method: searched
+source: https://sonarly.com/llms.txt
+description: >-
+  Versioning and lifecycle posture for the Sonarly API, from the published
+  onboarding guide. No public status page, deprecation policy, or SLA page was
+  found (checked; absence recorded honestly) — so no StatusPage/Deprecation
+  pointers are emitted.
+versioning:
+  scheme: dated API version
+  current: '2026-04-30'
+  surfaced_on: webhook envelope api_version field
+  stability: v1 public-API fields are stable — never renamed or removed
+  docs: https://sonarly.com/docs/public-api
+deprecation:
+  policy_url: null
+  sunset_header: false
+  note: No deprecation policy or RFC 8594 Sunset/Deprecation header support documented.
+sla:
+  url: null
+status_page: null
+deprecated_operations: []

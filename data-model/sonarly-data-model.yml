@@ -1,0 +1,47 @@
+generated: '2026-07-21'
+method: searched
+source: https://sonarly.com/llms.txt
+docs: https://sonarly.com/docs/public-api
+notation: >-
+  relationships use has_one / has_many / belongs_to with the reference field
+  name; direction is from the entity that owns the reference. Derived from the
+  documented Bug, Incident and Agent-run object fields in the public API
+  reference.
+entities:
+- name: Bug
+  id_prefix: bug_
+  domain: reliability
+  description: A triaged, deduplicated production bug with root cause and suggested fix.
+  key_fields: [id, source, status, severity, root_cause, suggested_fix, pr_url, repository, parent_bug_id, sentry_issue_id]
+- name: Incident
+  domain: reliability
+  description: An incident; same object shape and filters as Bug.
+  key_fields: [id, source, status, severity, root_cause, suggested_fix, pr_url]
+- name: AgentRun
+  domain: reliability
+  description: A single agent analysis/fix run against a bug or incident, carrying the analysis and any PR.
+  key_fields: [id, mode, status, trigger_source, bug_id, repository, branch_name, pr_url, pr_merged]
+- name: Tenant
+  id_prefix: tenant_id
+  domain: account
+  description: The customer account created at sign-in; every object is tenant-scoped.
+- name: WebhookEndpoint
+  domain: integration
+  description: A registered outbound webhook receiver with an HMAC signing secret.
+  key_fields: [id, secret, event_types]
+relationships:
+- {from: Bug, to: AgentRun, kind: has_many, via: bug_id}
+- {from: Bug, to: Bug, kind: has_many, via: parent_bug_id, note: duplicates deduped into this bug}
+- {from: Incident, to: AgentRun, kind: has_many, via: bug_id}
+- {from: AgentRun, to: Bug, kind: belongs_to, via: bug_id}
+- {from: Tenant, to: Bug, kind: has_many, via: tenant_id}
+- {from: Tenant, to: Incident, kind: has_many, via: tenant_id}
+- {from: Tenant, to: WebhookEndpoint, kind: has_many, via: tenant_id}
+external_refs:
+  description: Bugs link out to the source monitoring/code systems.
+  fields:
+  - {field: sentry_issue_id, system: Sentry}
+  - {field: sentry_url, system: Sentry}
+  - {field: github_issue_url, system: GitHub}
+  - {field: blame_commit_sha, system: git}
+  - {field: pr_url, system: GitHub/GitLab}

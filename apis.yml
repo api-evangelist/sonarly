@@ -1,8 +1,33 @@
 aid: sonarly
 name: Sonarly
-description: Sonarly is a company surfaced as a portfolio company of y-combinator and added to the API
-  Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Sonarly is an AI production-reliability platform (Y Combinator W2026, Paris)
+  that turns noisy production alerts into clear, deduplicated bug reports and
+  ships ready-to-merge fix pull requests. It connects to a team's code
+  (GitHub/GitLab) and their error and observability stack — Sentry, Datadog,
+  Grafana, New Relic, SigNoz, CloudWatch, GCP, and many more — then triages
+  every alert to remove noise and duplicates, investigates logs, traces and
+  metrics to find the root cause, and generates a fix PR or alerting-rule
+  recommendation. Sonarly exposes a read-only public REST API (v1) for pulling
+  bugs, incidents and analysis runs into custom dashboards, signed outbound
+  webhooks for live events, and a device-code style setup-session API that lets
+  a coding agent (Claude Code, Cursor) onboard a tenant end-to-end. Onboarding
+  is fully agent-native and documented at sonarly.com/llms.txt.
 url: https://raw.githubusercontent.com/api-evangelist/sonarly/refs/heads/main/apis.yml
+accessModel:
+  pricing: freemium
+  onboarding: self-serve
+  trial: true
+  try_now: true
+  public: false
+  label: Freemium (free trial) · Self-serve signup
+  confidence: high
+  source:
+  - plans
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://sonarly.com/logo_sonarly.png
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
@@ -11,12 +36,145 @@ x-tier: stub
 x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-21'
 tags:
 - Company
-apis: []
+- Reliability
+- Observability
+- Monitoring
+- Bug Detection
+- Incident Management
+- Root Cause Analysis
+- AI Agents
+- Developer Tools
+- DevOps
+apis:
+- aid: sonarly:sonarly-bugs-api
+  name: Sonarly Bugs API
+  description: Read triaged, deduplicated bugs and their analysis runs.
+  humanURL: https://sonarly.com/docs/public-api
+  baseURL: https://sonarly.com/api/v1/public
+  tags:
+  - Bugs
+  properties:
+  - type: OpenAPI
+    url: openapi/sonarly-bugs-api-openapi.yml
+  - type: Documentation
+    url: https://sonarly.com/docs/public-api
+  - type: APIReference
+    url: https://sonarly.com/docs/public-api
+  - type: Authentication
+    url: authentication/sonarly-authentication.yml
+  - type: Conventions
+    url: conventions/sonarly-conventions.yml
+  - type: RateLimits
+    url: rate-limits/sonarly-rate-limits.yml
+  - type: ErrorCatalog
+    url: errors/sonarly-problem-types.yml
+  - type: DataModel
+    url: data-model/sonarly-data-model.yml
+  - type: AsyncAPI
+    url: asyncapi/sonarly-events-asyncapi.yml
+- aid: sonarly:sonarly-incidents-api
+  name: Sonarly Incidents API
+  description: Read incidents and their analysis runs.
+  humanURL: https://sonarly.com/docs/public-api
+  baseURL: https://sonarly.com/api/v1/public
+  tags:
+  - Incidents
+  properties:
+  - type: OpenAPI
+    url: openapi/sonarly-incidents-api-openapi.yml
+  - type: Documentation
+    url: https://sonarly.com/docs/public-api
+  - type: APIReference
+    url: https://sonarly.com/docs/public-api
+  - type: Authentication
+    url: authentication/sonarly-authentication.yml
+  - type: Conventions
+    url: conventions/sonarly-conventions.yml
+  - type: RateLimits
+    url: rate-limits/sonarly-rate-limits.yml
+  - type: ErrorCatalog
+    url: errors/sonarly-problem-types.yml
+  - type: DataModel
+    url: data-model/sonarly-data-model.yml
+  - type: AsyncAPI
+    url: asyncapi/sonarly-events-asyncapi.yml
+- aid: sonarly:sonarly-setup-api
+  name: Sonarly Setup API
+  description: Device-code style setup-session API to onboard a tenant.
+  humanURL: https://sonarly.com/docs/public-api
+  baseURL: https://sonarly.com/api/v1/public
+  tags:
+  - Setup
+  properties:
+  - type: OpenAPI
+    url: openapi/sonarly-setup-api-openapi.yml
+  - type: Documentation
+    url: https://sonarly.com/docs/public-api
+  - type: APIReference
+    url: https://sonarly.com/docs/public-api
+  - type: Authentication
+    url: authentication/sonarly-authentication.yml
+  - type: Conventions
+    url: conventions/sonarly-conventions.yml
+  - type: RateLimits
+    url: rate-limits/sonarly-rate-limits.yml
+  - type: ErrorCatalog
+    url: errors/sonarly-problem-types.yml
+  - type: DataModel
+    url: data-model/sonarly-data-model.yml
+  - type: AsyncAPI
+    url: asyncapi/sonarly-events-asyncapi.yml
+common:
+- type: DeveloperPortal
+  url: https://sonarly.com/docs/public-api
+- type: Documentation
+  url: https://sonarly.com/docs/public-api
+- type: APIReference
+  url: https://sonarly.com/docs/public-api
+- type: LLMsTxt
+  url: llms/sonarly-llms.txt
+- type: Authentication
+  url: authentication/sonarly-authentication.yml
+- type: Conventions
+  url: conventions/sonarly-conventions.yml
+- type: RateLimits
+  url: rate-limits/sonarly-rate-limits.yml
+- type: ErrorCatalog
+  url: errors/sonarly-problem-types.yml
+- type: DataModel
+  url: data-model/sonarly-data-model.yml
+- type: Lifecycle
+  url: lifecycle/sonarly-lifecycle.yml
+- type: Conformance
+  url: conformance/sonarly-conformance.yml
+- type: MCPServer
+  url: mcp/sonarly-mcp.yml
+- type: AsyncAPI
+  url: asyncapi/sonarly-events-asyncapi.yml
+- type: Webhooks
+  url: asyncapi/sonarly-events-asyncapi.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: DomainSecurity
+  url: security/sonarly-domain-security.yml
+- type: Pricing
+  url: https://sonarly.com/pricing
+- type: Plans
+  url: plans/sonarly-plans.yml
+- type: SignUp
+  url: https://sonarly.com/
+- type: GitHubOrganization
+  url: https://github.com/sonarly
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+x-enrichment:
+  date: '2026-07-21'
+  status: enriched
+  artifacts_added: 17
+  pass: local-v1

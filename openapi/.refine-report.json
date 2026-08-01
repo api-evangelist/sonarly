@@ -1,0 +1,18 @@
+{
+  "provider": "sonarly",
+  "sources": [
+    "sonarly-bugs-api-openapi.yml",
+    "sonarly-incidents-api-openapi.yml",
+    "sonarly-setup-api-openapi.yml"
+  ],
+  "outputs": [
+    "sonarly-bugs-api-openapi.yml",
+    "sonarly-incidents-api-openapi.yml",
+    "sonarly-setup-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

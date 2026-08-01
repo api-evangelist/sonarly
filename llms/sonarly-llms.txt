@@ -1,0 +1,310 @@
+# Sonarly — agent setup guide (llms.txt)
+
+> Sonarly turns noisy production alerts into clear, deduplicated bug reports and
+> ships fix PRs. It connects to a team's **code** (GitHub/GitLab) and their
+> **error/observability stack** (Sentry, Datadog, Grafana, …), then triages,
+> root-causes and fixes alerts automatically.
+
+This file is the complete, self-contained onboarding playbook for a **coding
+agent** (Claude Code, Cursor, …) running **inside the user's repository**. When
+a user says *"set up Sonarly"* / *"install Sonarly"*, follow it top to bottom.
+
+## The one rule
+
+**You (the agent) do every step of the normal Sonarly onboarding — stack
+detection, account/session creation, repo selection, integration wiring, project
+config — EXCEPT the OAuth browser clicks.** For anything that needs a browser
+consent screen (sign-in, Sentry, GitHub App, Slack, GitLab) you generate the
+link, give it to the human, they click, and you continue once it lands. Never
+ask the human for a password. Never ask a question you can answer by reading the
+repo (e.g. GitHub vs GitLab, language, framework — detect it).
+
+Auth-type legend below: **[human]** = one OAuth click you hand off; **[agent]** =
+you do it via an API call with a key/token.
+
+---
+
+## Step 0 — Detect the stack (locally, first, no network)
+
+Read the repo and build a *stack profile*. Detect:
+
+- **Language / framework:** `package.json` (React, Next, Vue, Nuxt, Angular,
+  Svelte/SvelteKit, Express, NestJS, Fastify), `requirements.txt`/`pyproject.toml`
+  (Django, FastAPI, Flask), `go.mod`, `Gemfile` (Rails), `pom.xml`/`build.gradle`
+  (Spring), `composer.json` (Laravel/Symfony), `Cargo.toml` (Rust),
+  `*.csproj` (.NET), `mix.exs` (Phoenix).
+- **Package manager / build tool:** npm, yarn, pnpm, bun; Vite, webpack, Next,
+  Turbo, esbuild, Gradle, Maven, Poetry, uv.
+- **Git host:** `git remote -v` → github.com vs gitlab.com vs self-hosted GitLab.
+- **Monorepo:** multiple sub-packages / workspaces.
+- **Already-instrumented tools** (so you can pre-select them in Step 4/5):
+  `@sentry/*` or a `SENTRY_DSN`; `bugsnag`; `dd-trace`/`datadog`; `@grafana/*`;
+  OpenTelemetry exporters; `google-cloud`/`gcp`; `vercel.json`; `railway.json`;
+  Modal (`modal` in Python deps); Supabase (`@supabase/*`); LangSmith
+  (`langsmith`/`langchain`); New Relic (`newrelic`); SigNoz; Better Stack/Logtail;
+  Mezmo/LogDNA; PostHog; a Postgres/`DATABASE_URL`; Kubernetes manifests.
+
+Keep this profile — it drives integration pre-selection (Steps 4–5) and the
+project's agent instructions (Step 7).
+
+---
+
+## Step 1 — Start a setup session  [agent]
+
+```
+POST https://sonarly.com/api/setup/start
+Body: { "source": "<your agent name>", "stack": <stack profile JSON> }
+→ 200 {
+    "setup_id": "...",
+    "verification_url": "https://sonarly.com/setup/ABCD-EFGH",
+    "user_code": "ABCD-EFGH",
+    "interval": 3,
+    "expires_in": 900
+  }
+```
+
+Show the human:
+> **Open this link and sign in to create your Sonarly account:** `<verification_url>`
+
+## Step 2 — Wait for authorization  [human signs in → agent polls]
+
+The human signs in with **Google or GitHub** at `verification_url`. That single
+click **creates their tenant AND authorizes this session**. Poll (respect
+`interval`, stop at `expires_in`):
+
+```
+GET https://sonarly.com/api/setup/{setup_id}/status
+→ { "state": "pending" }
+→ { "state": "authorized", "token": "sks_setup_...", "tenant_id": 123, "connected": {...} }
+→ { "state": "expired" }   # restart Step 1
+```
+
+`token` = short-lived (≈30 min), **scoped to this one new tenant's setup
+endpoints only**. Use `Authorization: Bearer <token>` for every call below.
+The `status` response always returns a `connected` map you re-poll after each
+hand-off (e.g. `{ "github": true, "sentry": false, "slack": false }`).
+
+---
+
+## Step 3 — Connect the codebase  [GitHub: live]
+
+**GitHub** [human App install]:
+```
+GET /api/setup/connect-url?provider=github      Authorization: Bearer <token>
+→ { "provider": "github", "url": "https://github.com/apps/sonarly/installations/new?..." }
+```
+Show the human the `url` ("Install the Sonarly GitHub App: <url>"), then poll
+`GET /api/setup/{setup_id}/status` and watch `connected.github` flip to `true`.
+The human installs the App + signs in once; it binds to their account by GitHub
+identity (same as the dashboard). They land back on the Sonarly dashboard.
+
+Then **select repos yourself** [agent] — you know the codebase, so pick them
+automatically (default to the current repo's `origin`; no human step):
+```
+GET  /api/setup/repos                  Authorization: Bearer <token>
+   → { "repos": [ { "full_name": "owner/name", "default_branch": "main" }, ... ] }
+POST /api/setup/repos/selected         Authorization: Bearer <token>
+     Body: { "repos": ["owner/name", ...] }   → { "selected": ["owner/name"] }
+```
+
+> **GitLab** and other providers return `400` for now (wired incrementally).
+
+---
+
+## Step 4 — Connect error tracking
+
+**Sentry** [human OAuth] — the first wired integration:
+```
+GET /api/setup/connect-url?provider=sentry      Authorization: Bearer <token>
+→ { "provider": "sentry", "url": "https://sentry.io/oauth/authorize/?..." }
+```
+Show the human the `url` ("Connect your Sentry: <url>"), then poll
+`GET /api/setup/{setup_id}/status` and watch `connected.sentry` flip to `true`.
+The human lands on a "Sentry connected — return to your agent" page when done.
+
+> **Currently `connect-url` supports `provider=sentry` only** (others return
+> `400`). GitHub/GitLab, Bugsnag, observability/APM, Slack/Discord/Linear and the
+> repo/project endpoints below are the roadmap and are being wired incrementally.
+
+---
+
+## Step 5 — Connect observability / logs / APM  [agent — all API-key]
+
+For every tool your stack profile suggests (or the user names), collect the
+credentials (from the repo, `.env*`, or by asking for *just the key/token*) and
+POST it. The endpoint validates the credentials live and returns `4xx` with a
+clear message on bad input — surface it and retry.
+
+```
+POST /api/setup/{id}/integrations
+Body: { "backend_type": "<type>", "config": { ... } }
+```
+
+| backend_type | config keys |
+|---|---|
+| `datadog` | `api_key`, `app_key`, `site` (`datadoghq.com` / `datadoghq.eu` / `us5.datadoghq.com` / `ap1.datadoghq.com`) |
+| `grafana` | `url`, `api_key` (+ optional `cf_access_client_id`, `cf_access_client_secret` for Cloudflare Access) |
+| `signoz` | `url`, `api_key` |
+| `newrelic` | `api_key`, `account_id`, `region` (`us` / `eu`) |
+| `gcp` | `service_account_info` (full service-account JSON), `project_id` |
+| `cloudwatch` | `role_arn`, `external_id`, `region` (cross-account IAM AssumeRole) |
+| `betterstack` | `api_key` |
+| `mezmo` | `service_key`, `base_url` (default `https://api.mezmo.com`) |
+| `railway` | `api_token` |
+| `modal` | `token_id`, `token_secret` |
+| `supabase` | `url`, `api_key`, `project_id` (read-only role) |
+| `langsmith` | `api_key`, `workspace_id` |
+| `vercel` | `token` |
+| `posthog` | `api_key`, `host` |
+| `database` | `connection_string` (read-only Postgres) |
+| `kubernetes` | `kubeconfig` |
+
+On success the backend auto-provisions that tool's webhook / notification rule so
+new alerts flow to Sonarly automatically.
+
+---
+
+## Step 6 — Connect notifications (optional but recommended)
+
+Where Sonarly replies with its analysis + PR. Skip any the user doesn't use.
+
+| Channel | Type | How |
+|---|---|---|
+| **Slack** | [human] OAuth | `GET /api/setup/{id}/connect-url?provider=slack` → show → poll. After install remind them to `/invite @Sonarly` in the alert channel. |
+| **Discord** | [human] bot invite | `GET /api/setup/{id}/connect-url?provider=discord` → show → poll |
+| **Linear** | [human] OAuth | `GET /api/setup/{id}/connect-url?provider=linear` → show → poll |
+
+---
+
+## Step 7 — Configure the project  [agent — live]
+
+Write the project's **agent instructions** yourself from the codebase — this is
+the biggest lever on fix quality. Injected into every analysis/fix prompt.
+```
+POST /api/setup/project            Authorization: Bearer <token>
+Body: { "agent_instructions": "<framework, package manager, dirs to avoid, test cmd, conventions>" }
+→ { "saved": true, "chars": 412 }
+```
+Example: *"Next.js 15 + pnpm monorepo; app code in `apps/web`, shared in
+`packages/*`; never edit `packages/generated`; run tests with `pnpm test`;
+TypeScript strict."* (Default branch is set per-repo in Step 3's `repos/selected`.)
+
+---
+
+## Step 7b — Pull Sonarly data into a custom dashboard  [agent, optional]
+
+The "Developers" tab, exposed to you. Mint a **read-only** API key:
+```
+POST /api/setup/api-key            Authorization: Bearer <token>
+→ { "key": "sk_live_…", "api_base": "https://sonarly.com/api/v1/public",
+    "is_read_only": true, "docs": "https://sonarly.com/docs/public-api" }
+```
+`key` is returned **exactly once** — hand it to the user to store as a secret (env
+var, never commit). Read-only, tenant-scoped. Call the public REST API with
+`Authorization: Bearer sk_live_…` (rate limit 1000/min; see `RateLimit-*` headers).
+
+### Pull endpoints  (`base = https://sonarly.com/api/v1/public`)
+
+| Endpoint | Returns |
+|---|---|
+| `GET /bugs` | list bugs. Query: `limit`(1–100, def 20), `severity`(csv: critical,high,medium,low,resolved), `status`(open\|resolved), `created[gte]`/`created[lte]`(unix s), `starting_after`(cursor `bug_<id>`) |
+| `GET /bugs/{id}` | one bug |
+| `GET /bugs/{id}/runs` | that bug's analysis runs |
+| `GET /bugs/{id}/duplicates` | bugs deduped into it |
+| `GET /incidents` · `/incidents/{id}` · `/incidents/{id}/runs` | incidents (same shape/filters) |
+
+Pagination is cursor-based: response `{ "data": [...], "has_more": bool, "next": "<cursor>", "url": "/v1/public/bugs" }` → pass `?starting_after=<cursor>`.
+
+### Bug object (fields to display)
+`id, object, source, status, severity, title, description, summary, user_impact,
+root_cause, suggested_fix, blame_commit_sha, fixable_in_code, confidence, pr_url,
+agent_url, branch_name, repository, error_type, error_message, occurrence_count,
+total_user_count, first_seen, last_seen, created, analyzed_at, sentry_issue_id,
+sentry_url, github_issue_url, parent_bug_id, sonarly_url`.
+Agent-run object: `id, mode, status, trigger_source, bug_id, repository,
+branch_name, pr_url, pr_merged, analysis{title,severity,summary,user_impact,
+root_cause,suggested_fix,fixable_in_code}, created, started_at, completed_at`.
+Times are **unix seconds**; `null` = absent; fields are v1-stable (never renamed/removed).
+
+### Live push (webhooks) — alternative to polling
+
+**Register the receiver yourself** [agent]:
+```
+POST /api/setup/webhook-endpoint   Authorization: Bearer <token>
+Body: { "url": "https://your-app.com/webhooks/sonarly", "events": ["*"] }
+→ { "id": "...", "secret": "whsec_…", "event_types": ["*"] }
+```
+`secret` is shown **once** — hand it to the user to set on their receiver (e.g.
+`wrangler secret put SONARLY_WEBHOOK_SECRET`). The URL is SSRF-checked. (The user
+can also add it in the Developers tab.) Sonarly then POSTs a signed JSON envelope
+on each subscribed event:
+- **Events**: `bug.created, bug.analyzed, bug.deduped, bug.reappeared, bug.resolved,
+  bug.pr_created, bug.pr_merged, incident.created, incident.analyzed,
+  incident.resolved` (or subscribe `["*"]`).
+- **Envelope**: `{ "id":"evt_…", "type":"bug.analyzed", "api_version":"2026-04-30",
+  "created":<unix>, "tenant_id":N, "data":{ "object": <full Bug/Incident>,
+  "previous_attributes": null } }`.
+- **Headers**: `Sonarly-Signature: t=<unix>,v1=<hmac_sha256_hex>`, `Sonarly-Event-Id: evt_…`, `Sonarly-Event-Type`, `Sonarly-Delivery-Id`.
+- **Verify — do ALL of these (security-critical):**
+  1. Capture the **raw body BEFORE JSON-parsing** — re-serialization changes
+     whitespace/key order and breaks the signature (Express: `express.raw`; Next.js:
+     `await req.text()`; Workers: `await req.text()`).
+  2. Recompute `HMAC-SHA256(secret, "{t}.{rawBody}")` and compare to `v1` with a
+     **constant-time** compare (`crypto.timingSafeEqual` / `hmac.compare_digest`).
+  3. **Reject if `|now - t| > 300s`** (replay protection; tolerance is 300s).
+  4. **Dedupe on `Sonarly-Event-Id`** (= envelope `id`) — stable across the
+     8-attempt retry schedule (`INSERT … ON CONFLICT DO NOTHING`).
+  Return `2xx` fast (<10s) or Sonarly retries; persistent failures disable the
+  endpoint after 3 days.
+
+Full reference: `https://sonarly.com/docs/public-api`.
+
+---
+
+## Step 8 — Plan / trial  [human]
+
+Surface the plan so they can start the trial (Stripe checkout is a browser flow):
+```
+GET /api/setup/{id}/checkout-url?plan=startup   → { "url": "https://checkout.stripe.com/..." }
+```
+Plans mirror sonarly.com: Free ($0, 5 bugs/mo), Teams ($79, 50 bugs/mo),
+Startup ($195, 150 bugs/mo, 14-day trial), Enterprise (custom). Free needs no
+checkout — only show this if they want a paid tier.
+
+## Step 9 — Finish & hand off  [agent]
+
+```
+POST /api/setup/complete        Authorization: Bearer <token>
+→ { "completed": true, "dashboard_url": "https://sonarly.com/issues" }
+```
+This marks onboarding done and, if an error tracker is connected, pulls a recent
+issue as a **test analysis** so the user sees Sonarly work end-to-end.
+
+**Always finish by giving the user the `dashboard_url`** (exactly like the manual
+onboarding ends): *"You're all set — open your Sonarly dashboard: <dashboard_url>"*.
+
+---
+
+## Final human checklist (always print at the end)
+
+- [ ] Signed in — **Step 1 link**
+- [ ] Error tracker connected — Sentry **[link]**
+- [ ] Code host connected — GitHub App **[link]** (repos auto-selected by the agent)
+- [ ] 👉 **Open your dashboard: `dashboard_url`**
+- [ ] Everything else — **handled by the agent**
+
+---
+
+## API
+
+Full public REST API (read bugs/incidents/runs, outbound webhooks):
+`https://sonarly.com/docs/public-api`.
+
+### Notes for maintainers
+The `/api/setup/*` endpoints are the **setup-session API** (device-code style):
+`start` issues a session + user code; the human authorizes by signing in at
+`verification_url` (which creates their tenant); `status` returns a setup-scoped
+bearer token once authorized. `connect-url` mints OAuth/install links bound to
+the session `state`; `integrations` reuses the `logs-analysis` validation +
+auto-provisioning; all `/api/setup/*` writes are scoped to the single tenant
+created by that session and expire with it.

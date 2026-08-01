@@ -1,0 +1,19 @@
+generated: '2026-07-21'
+method: searched
+source: https://sonarly.com/llms.txt
+docs: https://sonarly.com/docs/public-api
+description: >-
+  Rate-limit posture for the Sonarly public REST API, as documented in the
+  agent onboarding guide.
+limits:
+- scope: public API key (sk_live_)
+  limit_count: 1000
+  window: minute
+  applies_to: https://sonarly.com/api/v1/public
+signaling:
+  headers:
+  - RateLimit-*
+  over_limit_status: 429
+notes: >-
+  Read-only public API key. Limit is 1000 requests per minute; current usage is
+  surfaced via RateLimit-* response headers.
