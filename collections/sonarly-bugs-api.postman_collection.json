@@ -1,0 +1,931 @@
+{
+  "item": [
+    {
+      "id": "53347f3c-58f8-436b-8e39-b2b7cc950598",
+      "name": "Bugs",
+      "description": {
+        "content": "Read triaged, deduplicated bugs and their analysis runs.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "de2a2600-263d-451d-8fac-a7c8d9563401",
+          "name": "List bugs",
+          "request": {
+            "name": "List bugs",
+            "description": {
+              "content": "List triaged bugs for the authenticated tenant. Cursor paginated.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "bugs"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Page size, 1-100 (default 20)."
+                },
+                {
+                  "disabled": false,
+                  "key": "severity",
+                  "value": "<string>",
+                  "description": "Comma-separated severities to include."
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>"
+                },
+                {
+                  "disabled": false,
+                  "key": "created[gte]",
+                  "value": "<integer>",
+                  "description": "Only bugs created at or after this unix-seconds timestamp."
+                },
+                {
+                  "disabled": false,
+                  "key": "created[lte]",
+                  "value": "<integer>",
+                  "description": "Only bugs created at or before this unix-seconds timestamp."
+                },
+                {
+                  "disabled": false,
+                  "key": "starting_after",
+                  "value": "<string>",
+                  "description": "Pagination cursor of the form bug_<id>."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "ea599dd4-9bbc-4067-91d4-973a65846b94",
+              "name": "A page of bugs.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "severity",
+                      "value": "critical,high"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "created[gte]",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "created[lte]",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "starting_after",
+                      "value": "bug_123"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"has_more\": true,\n  \"next\": \"string\",\n  \"url\": \"string\",\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"object\": \"bug\",\n      \"source\": \"string\",\n      \"status\": \"open\",\n      \"severity\": \"medium\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"summary\": \"string\",\n      \"user_impact\": \"string\",\n      \"root_cause\": \"string\",\n      \"suggested_fix\": \"string\",\n      \"blame_commit_sha\": \"string\",\n      \"fixable_in_code\": true,\n      \"confidence\": 3702.5090024180663,\n      \"pr_url\": \"string\",\n      \"agent_url\": \"string\",\n      \"branch_name\": \"string\",\n      \"repository\": \"string\",\n      \"error_type\": \"string\",\n      \"error_message\": \"string\",\n      \"occurrence_count\": 2926,\n      \"total_user_count\": 1584,\n      \"first_seen\": 117,\n      \"last_seen\": 8934,\n      \"created\": 7670,\n      \"analyzed_at\": 9461,\n      \"sentry_issue_id\": \"string\",\n      \"sentry_url\": \"string\",\n      \"github_issue_url\": \"string\",\n      \"parent_bug_id\": \"string\",\n      \"sonarly_url\": \"string\"\n    },\n    {\n      \"id\": \"string\",\n      \"object\": \"bug\",\n      \"source\": \"string\",\n      \"status\": \"resolved\",\n      \"severity\": \"critical\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"summary\": \"string\",\n      \"user_impact\": \"string\",\n      \"root_cause\": \"string\",\n      \"suggested_fix\": \"string\",\n      \"blame_commit_sha\": \"string\",\n      \"fixable_in_code\": true,\n      \"confidence\": 284.07066907568225,\n      \"pr_url\": \"string\",\n      \"agent_url\": \"string\",\n      \"branch_name\": \"string\",\n      \"repository\": \"string\",\n      \"error_type\": \"string\",\n      \"error_message\": \"string\",\n      \"occurrence_count\": 2317,\n      \"total_user_count\": 7094,\n      \"first_seen\": 3877,\n      \"last_seen\": 500,\n      \"created\": 2871,\n      \"analyzed_at\": 3967,\n      \"sentry_issue_id\": \"string\",\n      \"sentry_url\": \"string\",\n      \"github_issue_url\": \"string\",\n      \"parent_bug_id\": \"string\",\n      \"sonarly_url\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "126a6822-1473-4ec8-8136-d2bd67f6f47e",
+              "name": "Missing or invalid bearer token.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "severity",
+                      "value": "critical,high"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "created[gte]",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "created[lte]",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "starting_after",
+                      "value": "bug_123"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "0d39124b-3046-4aeb-8c15-18497a444b2f",
+              "name": "Rate limit exceeded (1000/min). See the RateLimit-* response headers.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "severity",
+                      "value": "critical,high"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "created[gte]",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "created[lte]",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "starting_after",
+                      "value": "bug_123"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Too Many Requests",
+              "code": 429,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "5e07d070-ae59-4b8d-80a5-96e28e60402d",
+          "name": "Retrieve a bug",
+          "request": {
+            "name": "Retrieve a bug",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "bugs",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "96217f19-7e31-459a-abee-d14ba5cc9414",
+              "name": "The bug.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"string\",\n  \"object\": \"bug\",\n  \"source\": \"string\",\n  \"status\": \"open\",\n  \"severity\": \"medium\",\n  \"title\": \"string\",\n  \"description\": \"string\",\n  \"summary\": \"string\",\n  \"user_impact\": \"string\",\n  \"root_cause\": \"string\",\n  \"suggested_fix\": \"string\",\n  \"blame_commit_sha\": \"string\",\n  \"fixable_in_code\": false,\n  \"confidence\": 6415.668539898711,\n  \"pr_url\": \"string\",\n  \"agent_url\": \"string\",\n  \"branch_name\": \"string\",\n  \"repository\": \"string\",\n  \"error_type\": \"string\",\n  \"error_message\": \"string\",\n  \"occurrence_count\": 9534,\n  \"total_user_count\": 7646,\n  \"first_seen\": 3365,\n  \"last_seen\": 6912,\n  \"created\": 5014,\n  \"analyzed_at\": 5582,\n  \"sentry_issue_id\": \"string\",\n  \"sentry_url\": \"string\",\n  \"github_issue_url\": \"string\",\n  \"parent_bug_id\": \"string\",\n  \"sonarly_url\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "677af5f7-304d-4815-bcd1-d01c64d42183",
+              "name": "Missing or invalid bearer token.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "3a98c7e7-5ac3-4aeb-9417-d2b4cb0e7f33",
+              "name": "Resource not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ea4b56bb-071e-4258-a436-50b1778f8237",
+          "name": "List a bug's analysis runs",
+          "request": {
+            "name": "List a bug's analysis runs",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "bugs",
+                ":id",
+                "runs"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c2d077ad-8198-4661-b712-57973f1b2642",
+              "name": "The bug's agent-analysis runs.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id",
+                    "runs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"has_more\": true,\n  \"next\": \"string\",\n  \"url\": \"string\",\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"mode\": \"string\",\n      \"status\": \"string\",\n      \"trigger_source\": \"string\",\n      \"bug_id\": \"string\",\n      \"repository\": \"string\",\n      \"branch_name\": \"string\",\n      \"pr_url\": \"string\",\n      \"pr_merged\": false,\n      \"analysis\": {\n        \"title\": \"string\",\n        \"severity\": \"string\",\n        \"summary\": \"string\",\n        \"user_impact\": \"string\",\n        \"root_cause\": \"string\",\n        \"suggested_fix\": \"string\",\n        \"fixable_in_code\": true\n      },\n      \"created\": 1309,\n      \"started_at\": 8777,\n      \"completed_at\": 3482\n    },\n    {\n      \"id\": \"string\",\n      \"mode\": \"string\",\n      \"status\": \"string\",\n      \"trigger_source\": \"string\",\n      \"bug_id\": \"string\",\n      \"repository\": \"string\",\n      \"branch_name\": \"string\",\n      \"pr_url\": \"string\",\n      \"pr_merged\": false,\n      \"analysis\": {\n        \"title\": \"string\",\n        \"severity\": \"string\",\n        \"summary\": \"string\",\n        \"user_impact\": \"string\",\n        \"root_cause\": \"string\",\n        \"suggested_fix\": \"string\",\n        \"fixable_in_code\": false\n      },\n      \"created\": 6317,\n      \"started_at\": 4226,\n      \"completed_at\": 8737\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "be336730-a1db-4552-9014-b1f4340f025c",
+              "name": "Missing or invalid bearer token.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id",
+                    "runs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "334a3cf9-dda0-488f-8ef9-8799ce32776d",
+              "name": "Resource not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id",
+                    "runs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "1f8aef7e-99dc-4670-8a86-12eca0cd78c4",
+          "name": "List bugs deduplicated into this bug",
+          "request": {
+            "name": "List bugs deduplicated into this bug",
+            "description": {},
+            "url": {
+              "path": [
+                "api",
+                "v1",
+                "public",
+                "bugs",
+                ":id",
+                "duplicates"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b8ca5ac3-8651-44d4-99a0-48756771bafd",
+              "name": "Bugs that were deduped into this bug.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id",
+                    "duplicates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"has_more\": true,\n  \"next\": \"string\",\n  \"url\": \"string\",\n  \"data\": [\n    {\n      \"id\": \"string\",\n      \"object\": \"bug\",\n      \"source\": \"string\",\n      \"status\": \"open\",\n      \"severity\": \"medium\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"summary\": \"string\",\n      \"user_impact\": \"string\",\n      \"root_cause\": \"string\",\n      \"suggested_fix\": \"string\",\n      \"blame_commit_sha\": \"string\",\n      \"fixable_in_code\": true,\n      \"confidence\": 3702.5090024180663,\n      \"pr_url\": \"string\",\n      \"agent_url\": \"string\",\n      \"branch_name\": \"string\",\n      \"repository\": \"string\",\n      \"error_type\": \"string\",\n      \"error_message\": \"string\",\n      \"occurrence_count\": 2926,\n      \"total_user_count\": 1584,\n      \"first_seen\": 117,\n      \"last_seen\": 8934,\n      \"created\": 7670,\n      \"analyzed_at\": 9461,\n      \"sentry_issue_id\": \"string\",\n      \"sentry_url\": \"string\",\n      \"github_issue_url\": \"string\",\n      \"parent_bug_id\": \"string\",\n      \"sonarly_url\": \"string\"\n    },\n    {\n      \"id\": \"string\",\n      \"object\": \"bug\",\n      \"source\": \"string\",\n      \"status\": \"resolved\",\n      \"severity\": \"critical\",\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"summary\": \"string\",\n      \"user_impact\": \"string\",\n      \"root_cause\": \"string\",\n      \"suggested_fix\": \"string\",\n      \"blame_commit_sha\": \"string\",\n      \"fixable_in_code\": true,\n      \"confidence\": 284.07066907568225,\n      \"pr_url\": \"string\",\n      \"agent_url\": \"string\",\n      \"branch_name\": \"string\",\n      \"repository\": \"string\",\n      \"error_type\": \"string\",\n      \"error_message\": \"string\",\n      \"occurrence_count\": 2317,\n      \"total_user_count\": 7094,\n      \"first_seen\": 3877,\n      \"last_seen\": 500,\n      \"created\": 2871,\n      \"analyzed_at\": 3967,\n      \"sentry_issue_id\": \"string\",\n      \"sentry_url\": \"string\",\n      \"github_issue_url\": \"string\",\n      \"parent_bug_id\": \"string\",\n      \"sonarly_url\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d2fb1dd4-9cc3-4937-a04d-27218edff8ef",
+              "name": "Missing or invalid bearer token.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id",
+                    "duplicates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "1479677e-0a51-4332-98e0-686dc84d65f8",
+              "name": "Resource not found.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "v1",
+                    "public",
+                    "bugs",
+                    ":id",
+                    "duplicates"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://sonarly.com",
+      "key": "baseUrl"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearerToken}}"
+      }
+    ]
+  },
+  "info": {
+    "_postman_id": "d41c105d-06d2-4f61-96d5-5d0a127e8c1d",
+    "name": "Sonarly Bugs API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Sonarly turns noisy production alerts into clear, deduplicated bug reports and ships fix pull requests. It connects to a team's code (GitHub/GitLab) and their error/observability stack (Sentry, Datadog, Grafana, and more), then triages, root-causes and fixes alerts automatically. This API covers two surfaces: the read-only public REST API (v1) for pulling bugs, incidents and analysis runs into your own dashboards, and the device-code style setup-session API used to onboard a tenant.\n\nContact Support:\n Name: Sonarly",
+      "type": "text/plain"
+    }
+  }
+}

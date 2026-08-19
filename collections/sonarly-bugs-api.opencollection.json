@@ -1,0 +1,126 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Sonarly Bugs API",
+    "version": "2026-04-30"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Bugs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List bugs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/v1/public/bugs",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Page size, 1-100 (default 20)."
+              },
+              {
+                "name": "severity",
+                "value": "",
+                "type": "query",
+                "description": "Comma-separated severities to include."
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "created[gte]",
+                "value": "",
+                "type": "query",
+                "description": "Only bugs created at or after this unix-seconds timestamp."
+              },
+              {
+                "name": "created[lte]",
+                "value": "",
+                "type": "query",
+                "description": "Only bugs created at or before this unix-seconds timestamp."
+              },
+              {
+                "name": "starting_after",
+                "value": "",
+                "type": "query",
+                "description": "Pagination cursor of the form bug_<id>."
+              }
+            ]
+          },
+          "docs": "List triaged bugs for the authenticated tenant. Cursor paginated."
+        },
+        {
+          "info": {
+            "name": "Retrieve a bug",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/v1/public/bugs/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve a bug"
+        },
+        {
+          "info": {
+            "name": "List a bug's analysis runs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/v1/public/bugs/:id/runs",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List a bug's analysis runs"
+        },
+        {
+          "info": {
+            "name": "List bugs deduplicated into this bug",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/v1/public/bugs/:id/duplicates",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List bugs deduplicated into this bug"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

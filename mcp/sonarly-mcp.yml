@@ -2,11 +2,9 @@ generated: '2026-07-21'
 method: derived
 status: candidate
 source: openapi/sonarly-openapi.yml
-description: >-
-  Candidate MCP tool list derived from Sonarly's read-only public REST API
-  operations. Sonarly publishes no hosted/remote MCP server (its agent-native
-  surface is the llms.txt onboarding guide, not MCP), so this is a candidate the
-  read API could back one-to-one. Not an official Sonarly server.
+description: Candidate MCP tool list derived from Sonarly's read-only public REST API operations. Sonarly
+  publishes no hosted/remote MCP server (its agent-native surface is the llms.txt onboarding guide, not
+  MCP), so this is a candidate the read API could back one-to-one. Not an official Sonarly server.
 server:
   name: sonarly
   transport: http
@@ -32,3 +30,9 @@ tools:
 - name: list_incident_runs
   description: List an incident's agent analysis runs.
   source_operation: openapi/sonarly-openapi.yml#listIncidentRuns
+deployment:
+  mode: none
+  verified: derived
+  tools: 7
+  checked: '2026-08-12'
+  source: catalog MCP census

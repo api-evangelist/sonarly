@@ -1,0 +1,103 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Sonarly Bugs Incidents API",
+    "version": "2026-04-30"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Incidents",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List incidents",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/v1/public/incidents",
+            "params": [
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "severity",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "created[gte]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "created[lte]",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "starting_after",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Same shape and filters as GET /bugs."
+        },
+        {
+          "info": {
+            "name": "Retrieve an incident",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/v1/public/incidents/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve an incident"
+        },
+        {
+          "info": {
+            "name": "List an incident's analysis runs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/v1/public/incidents/:id/runs",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "List an incident's analysis runs"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

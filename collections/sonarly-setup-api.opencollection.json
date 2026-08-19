@@ -1,0 +1,198 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Sonarly Bugs Setup API",
+    "version": "2026-04-30"
+  },
+  "request": {
+    "auth": {
+      "type": "bearer",
+      "token": "{{bearerToken}}"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Setup",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Start a setup session",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://sonarly.com/api/setup/start",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Device-code style. Issues a session plus a user code; the human authorizes by signing in at verification_url (which creates their tenant)."
+        },
+        {
+          "info": {
+            "name": "Poll setup-session status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/setup/:setup_id/status",
+            "params": [
+              {
+                "name": "setup_id",
+                "value": "",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Poll setup-session status"
+        },
+        {
+          "info": {
+            "name": "Mint an OAuth/install link for a provider",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/setup/connect-url",
+            "params": [
+              {
+                "name": "provider",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Currently supports provider=sentry and provider=github; other providers return 400 while wired incrementally."
+        },
+        {
+          "info": {
+            "name": "List repositories available to the connected code host",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/setup/repos"
+          },
+          "docs": "List repositories available to the connected code host"
+        },
+        {
+          "info": {
+            "name": "Select repositories for the tenant",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://sonarly.com/api/setup/repos/selected",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Select repositories for the tenant"
+        },
+        {
+          "info": {
+            "name": "Connect an observability / logs / APM backend",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://sonarly.com/api/setup/:id/integrations",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Validates the credentials live and returns 4xx with a clear message on bad input. On success auto-provisions that tool's webhook/notification rule. backend_type is one of datadog, grafana, signoz, newrelic, gcp, cloudwatch, betterstack, mezmo, railway, modal, supabase, langsmith, vercel, posthog, database, kubernetes."
+        },
+        {
+          "info": {
+            "name": "Set the project's agent instructions",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://sonarly.com/api/setup/project",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Set the project's agent instructions"
+        },
+        {
+          "info": {
+            "name": "Mint a read-only public API key",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://sonarly.com/api/setup/api-key"
+          },
+          "docs": "Returns the key exactly once. Read-only, tenant-scoped. Use it as a Bearer token against the public API base."
+        },
+        {
+          "info": {
+            "name": "Register an outbound webhook receiver",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://sonarly.com/api/setup/webhook-endpoint",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "The URL is SSRF-checked. Returns a signing secret (prefix whsec_) shown once."
+        },
+        {
+          "info": {
+            "name": "Get a Stripe checkout URL for a plan",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://sonarly.com/api/setup/:id/checkout-url",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "plan",
+                "value": "",
+                "type": "query"
+              }
+            ]
+          },
+          "docs": "Get a Stripe checkout URL for a plan"
+        },
+        {
+          "info": {
+            "name": "Finish onboarding",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://sonarly.com/api/setup/complete"
+          },
+          "docs": "Finish onboarding"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
