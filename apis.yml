@@ -37,7 +37,9 @@ accessModel:
   source:
   - plans
   - authentication
-  generated: '2026-07-22'
+  - rate-limits
+  - security
+  generated: '2026-09-03'
   method: derived
 image: https://sonarly.com/logo_sonarly.png
 x-type: company
@@ -162,8 +164,9 @@ common:
   url: lifecycle/sonarly-lifecycle.yml
 - type: Conformance
   url: conformance/sonarly-conformance.yml
-- type: MCPServer
+- type: X-MCPServerCandidate
   url: mcp/sonarly-mcp.yml
+  note: 'Renamed from MCPServer 2026-09-03 (roadmap#247): the manifest self-describes as status: candidate — a tool list derived from the published API contracts, not an existing server. The scorer already read the manifest and reported mcp_server correctly; the MCPServer type was crediting the artifact-type surfaces with a server that does not exist.'
 - type: AsyncAPI
   url: asyncapi/sonarly-events-asyncapi.yml
 - type: Webhooks
