@@ -142,6 +142,8 @@ apis:
   - type: AsyncAPI
     url: asyncapi/sonarly-events-asyncapi.yml
 common:
+- type: Website
+  url: https://www.sonarly.com/
 - type: DeveloperPortal
   url: https://sonarly.com/docs/public-api
 - type: Documentation
