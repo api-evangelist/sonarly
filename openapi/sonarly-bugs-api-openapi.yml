@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
   title: Sonarly Bugs API
   version: '2026-04-30'
@@ -130,17 +130,14 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
+  responses:
+    NotFound:
+      description: Resource not found.
+    Unauthorized:
+      description: Missing or invalid bearer token.
+    RateLimited:
+      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
   schemas:
-    ListEnvelope:
-      type: object
-      properties:
-        has_more:
-          type: boolean
-        next:
-          type: string
-          description: Next cursor.
-        url:
-          type: string
     AgentRun:
       type: object
       description: A single agent analysis/fix run for a bug or incident.
@@ -189,15 +186,6 @@ components:
         completed_at:
           type: integer
           description: unix seconds
-    BugList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Bug'
     AgentRunList:
       allOf:
       - $ref: '#/components/schemas/ListEnvelope'
@@ -207,6 +195,16 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/AgentRun'
+    ListEnvelope:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next:
+          type: string
+          description: Next cursor.
+        url:
+          type: string
     Bug:
       type: object
       description: A triaged, deduplicated production bug.
@@ -288,13 +286,15 @@ components:
           description: Set when this bug was deduped into another.
         sonarly_url:
           type: string
-  responses:
-    Unauthorized:
-      description: Missing or invalid bearer token.
-    RateLimited:
-      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
-    NotFound:
-      description: Resource not found.
+    BugList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Bug'
   parameters:
     BugId:
       name: id

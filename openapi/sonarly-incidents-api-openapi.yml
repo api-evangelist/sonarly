@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Sonarly Bugs Incidents API
+  title: Sonarly Incidents API
   version: '2026-04-30'
   description: 'Sonarly turns noisy production alerts into clear, deduplicated bug reports and ships fix pull requests. It connects to a team''s code (GitHub/GitLab) and their error/observability stack (Sentry, Datadog, Grafana, and more), then triages, root-causes and fixes alerts automatically. This API covers two surfaces: the read-only public REST API (v1) for pulling bugs, incidents and analysis runs into your own dashboards, and the device-code style setup-session API used to onboard a tenant.'
   contact:
@@ -104,26 +104,14 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
+  responses:
+    NotFound:
+      description: Resource not found.
+    Unauthorized:
+      description: Missing or invalid bearer token.
+    RateLimited:
+      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
   schemas:
-    ListEnvelope:
-      type: object
-      properties:
-        has_more:
-          type: boolean
-        next:
-          type: string
-          description: Next cursor.
-        url:
-          type: string
-    IncidentList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Incident'
     AgentRun:
       type: object
       description: A single agent analysis/fix run for a bug or incident.
@@ -185,6 +173,16 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/AgentRun'
+    ListEnvelope:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next:
+          type: string
+          description: Next cursor.
+        url:
+          type: string
     Bug:
       type: object
       description: A triaged, deduplicated production bug.
@@ -266,13 +264,15 @@ components:
           description: Set when this bug was deduped into another.
         sonarly_url:
           type: string
-  responses:
-    Unauthorized:
-      description: Missing or invalid bearer token.
-    RateLimited:
-      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
-    NotFound:
-      description: Resource not found.
+    IncidentList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Incident'
   parameters:
     IncidentId:
       name: id

@@ -1,6 +1,6 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: Sonarly Bugs Setup API
+  title: Sonarly Setup API
   version: '2026-04-30'
   description: 'Sonarly turns noisy production alerts into clear, deduplicated bug reports and ships fix pull requests. It connects to a team''s code (GitHub/GitLab) and their error/observability stack (Sentry, Datadog, Grafana, and more), then triages, root-causes and fixes alerts automatically. This API covers two surfaces: the read-only public REST API (v1) for pulling bugs, incidents and analysis runs into your own dashboards, and the device-code style setup-session API used to onboard a tenant.'
   contact:
