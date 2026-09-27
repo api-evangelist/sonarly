@@ -130,14 +130,35 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 components:
-  responses:
-    NotFound:
-      description: Resource not found.
-    Unauthorized:
-      description: Missing or invalid bearer token.
-    RateLimited:
-      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
   schemas:
+    AgentRunList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/AgentRun'
+    ListEnvelope:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next:
+          type: string
+          description: Next cursor.
+        url:
+          type: string
+    BugList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Bug'
     AgentRun:
       type: object
       description: A single agent analysis/fix run for a bug or incident.
@@ -186,25 +207,6 @@ components:
         completed_at:
           type: integer
           description: unix seconds
-    AgentRunList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/AgentRun'
-    ListEnvelope:
-      type: object
-      properties:
-        has_more:
-          type: boolean
-        next:
-          type: string
-          description: Next cursor.
-        url:
-          type: string
     Bug:
       type: object
       description: A triaged, deduplicated production bug.
@@ -286,15 +288,13 @@ components:
           description: Set when this bug was deduped into another.
         sonarly_url:
           type: string
-    BugList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Bug'
+  responses:
+    Unauthorized:
+      description: Missing or invalid bearer token.
+    RateLimited:
+      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
+    NotFound:
+      description: Resource not found.
   parameters:
     BugId:
       name: id
