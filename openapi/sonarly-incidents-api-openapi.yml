@@ -105,82 +105,6 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
-    AgentRunList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/AgentRun'
-    ListEnvelope:
-      type: object
-      properties:
-        has_more:
-          type: boolean
-        next:
-          type: string
-          description: Next cursor.
-        url:
-          type: string
-    AgentRun:
-      type: object
-      description: A single agent analysis/fix run for a bug or incident.
-      properties:
-        id:
-          type: string
-        mode:
-          type: string
-        status:
-          type: string
-        trigger_source:
-          type: string
-        bug_id:
-          type: string
-        repository:
-          type: string
-        branch_name:
-          type: string
-        pr_url:
-          type: string
-        pr_merged:
-          type: boolean
-        analysis:
-          type: object
-          properties:
-            title:
-              type: string
-            severity:
-              type: string
-            summary:
-              type: string
-            user_impact:
-              type: string
-            root_cause:
-              type: string
-            suggested_fix:
-              type: string
-            fixable_in_code:
-              type: boolean
-        created:
-          type: integer
-          description: unix seconds
-        started_at:
-          type: integer
-          description: unix seconds
-        completed_at:
-          type: integer
-          description: unix seconds
-    IncidentList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Incident'
     Bug:
       type: object
       description: A triaged, deduplicated production bug.
@@ -266,13 +190,82 @@ components:
       description: An incident; same shape as Bug.
       allOf:
       - $ref: '#/components/schemas/Bug'
-  responses:
-    Unauthorized:
-      description: Missing or invalid bearer token.
-    RateLimited:
-      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
-    NotFound:
-      description: Resource not found.
+    ListEnvelope:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next:
+          type: string
+          description: Next cursor.
+        url:
+          type: string
+    AgentRunList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/AgentRun'
+    AgentRun:
+      type: object
+      description: A single agent analysis/fix run for a bug or incident.
+      properties:
+        id:
+          type: string
+        mode:
+          type: string
+        status:
+          type: string
+        trigger_source:
+          type: string
+        bug_id:
+          type: string
+        repository:
+          type: string
+        branch_name:
+          type: string
+        pr_url:
+          type: string
+        pr_merged:
+          type: boolean
+        analysis:
+          type: object
+          properties:
+            title:
+              type: string
+            severity:
+              type: string
+            summary:
+              type: string
+            user_impact:
+              type: string
+            root_cause:
+              type: string
+            suggested_fix:
+              type: string
+            fixable_in_code:
+              type: boolean
+        created:
+          type: integer
+          description: unix seconds
+        started_at:
+          type: integer
+          description: unix seconds
+        completed_at:
+          type: integer
+          description: unix seconds
+    IncidentList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Incident'
   parameters:
     IncidentId:
       name: id
@@ -280,6 +273,13 @@ components:
       required: true
       schema:
         type: string
+  responses:
+    NotFound:
+      description: Resource not found.
+    Unauthorized:
+      description: Missing or invalid bearer token.
+    RateLimited:
+      description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
   securitySchemes:
     bearerAuth:
       type: http
