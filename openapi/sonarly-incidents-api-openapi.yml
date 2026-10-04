@@ -105,6 +105,25 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
+    ListEnvelope:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next:
+          type: string
+          description: Next cursor.
+        url:
+          type: string
+    AgentRunList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/AgentRun'
     Bug:
       type: object
       description: A triaged, deduplicated production bug.
@@ -190,17 +209,7 @@ components:
       description: An incident; same shape as Bug.
       allOf:
       - $ref: '#/components/schemas/Bug'
-    ListEnvelope:
-      type: object
-      properties:
-        has_more:
-          type: boolean
-        next:
-          type: string
-          description: Next cursor.
-        url:
-          type: string
-    AgentRunList:
+    IncidentList:
       allOf:
       - $ref: '#/components/schemas/ListEnvelope'
       - type: object
@@ -208,7 +217,7 @@ components:
           data:
             type: array
             items:
-              $ref: '#/components/schemas/AgentRun'
+              $ref: '#/components/schemas/Incident'
     AgentRun:
       type: object
       description: A single agent analysis/fix run for a bug or incident.
@@ -257,15 +266,6 @@ components:
         completed_at:
           type: integer
           description: unix seconds
-    IncidentList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Incident'
   parameters:
     IncidentId:
       name: id
@@ -274,12 +274,12 @@ components:
       schema:
         type: string
   responses:
-    NotFound:
-      description: Resource not found.
-    Unauthorized:
-      description: Missing or invalid bearer token.
     RateLimited:
       description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
+    Unauthorized:
+      description: Missing or invalid bearer token.
+    NotFound:
+      description: Resource not found.
   securitySchemes:
     bearerAuth:
       type: http

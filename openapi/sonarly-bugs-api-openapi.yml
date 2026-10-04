@@ -131,6 +131,25 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
+    ListEnvelope:
+      type: object
+      properties:
+        has_more:
+          type: boolean
+        next:
+          type: string
+          description: Next cursor.
+        url:
+          type: string
+    AgentRunList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/AgentRun'
     Bug:
       type: object
       description: A triaged, deduplicated production bug.
@@ -212,7 +231,7 @@ components:
           description: Set when this bug was deduped into another.
         sonarly_url:
           type: string
-    AgentRunList:
+    BugList:
       allOf:
       - $ref: '#/components/schemas/ListEnvelope'
       - type: object
@@ -220,17 +239,7 @@ components:
           data:
             type: array
             items:
-              $ref: '#/components/schemas/AgentRun'
-    ListEnvelope:
-      type: object
-      properties:
-        has_more:
-          type: boolean
-        next:
-          type: string
-          description: Next cursor.
-        url:
-          type: string
+              $ref: '#/components/schemas/Bug'
     AgentRun:
       type: object
       description: A single agent analysis/fix run for a bug or incident.
@@ -279,22 +288,13 @@ components:
         completed_at:
           type: integer
           description: unix seconds
-    BugList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Bug'
   responses:
-    NotFound:
-      description: Resource not found.
-    Unauthorized:
-      description: Missing or invalid bearer token.
     RateLimited:
       description: Rate limit exceeded (1000/min). See the RateLimit-* response headers.
+    Unauthorized:
+      description: Missing or invalid bearer token.
+    NotFound:
+      description: Resource not found.
   parameters:
     BugId:
       name: id
