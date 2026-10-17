@@ -105,6 +105,15 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
+    AgentRunList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/AgentRun'
     ListEnvelope:
       type: object
       properties:
@@ -115,7 +124,7 @@ components:
           description: Next cursor.
         url:
           type: string
-    AgentRunList:
+    IncidentList:
       allOf:
       - $ref: '#/components/schemas/ListEnvelope'
       - type: object
@@ -123,7 +132,7 @@ components:
           data:
             type: array
             items:
-              $ref: '#/components/schemas/AgentRun'
+              $ref: '#/components/schemas/Incident'
     Bug:
       type: object
       description: A triaged, deduplicated production bug.
@@ -205,19 +214,6 @@ components:
           description: Set when this bug was deduped into another.
         sonarly_url:
           type: string
-    Incident:
-      description: An incident; same shape as Bug.
-      allOf:
-      - $ref: '#/components/schemas/Bug'
-    IncidentList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/Incident'
     AgentRun:
       type: object
       description: A single agent analysis/fix run for a bug or incident.
@@ -266,6 +262,10 @@ components:
         completed_at:
           type: integer
           description: unix seconds
+    Incident:
+      description: An incident; same shape as Bug.
+      allOf:
+      - $ref: '#/components/schemas/Bug'
   parameters:
     IncidentId:
       name: id

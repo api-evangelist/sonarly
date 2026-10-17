@@ -131,6 +131,15 @@ paths:
           $ref: '#/components/responses/NotFound'
 components:
   schemas:
+    AgentRunList:
+      allOf:
+      - $ref: '#/components/schemas/ListEnvelope'
+      - type: object
+        properties:
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/AgentRun'
     ListEnvelope:
       type: object
       properties:
@@ -141,15 +150,6 @@ components:
           description: Next cursor.
         url:
           type: string
-    AgentRunList:
-      allOf:
-      - $ref: '#/components/schemas/ListEnvelope'
-      - type: object
-        properties:
-          data:
-            type: array
-            items:
-              $ref: '#/components/schemas/AgentRun'
     Bug:
       type: object
       description: A triaged, deduplicated production bug.
